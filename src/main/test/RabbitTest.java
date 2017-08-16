@@ -32,7 +32,33 @@ public class RabbitTest {
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
+    }
 
+    /**
+     * 持久化消息
+     */
+    @Test
+    public void testProvider1() {
+        try {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost("localhost");
+            Connection connection = connectionFactory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+            String message1 = "hello world!";
+            String message2 = "ronaldo!";
+            channel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message1.getBytes());
+            channel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message2.getBytes());
+            System.out.println(" [x] Sent '" + message1 + "'");
+            System.out.println(" [x] Sent '" + message2 + "'");
+            // 关闭频道和连接
+            channel.close();
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
