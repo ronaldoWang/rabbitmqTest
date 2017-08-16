@@ -11,11 +11,19 @@ public class RabbitTestExchangeFanout {
     public static final String QUEUE_NAME = "order_queue_7";
     public static final String EXCHANGE_NAME = "logs";
 
+    public static final String URL = "192.168.1.5";
+    public static final String username = "admin";
+    public static final String password = "admin";
+    public static final Integer port = 5672;
+
     @Test
     public void testProvider() {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
+            connectionFactory.setHost(URL);
+            connectionFactory.setUsername(username);
+            connectionFactory.setPassword(password);
+            connectionFactory.setPort(port);
             Connection connection = connectionFactory.newConnection();
             Channel channel = connection.createChannel();
             //channel.queueDeclare(QUEUE_NAME, false, false, false, null);
@@ -40,7 +48,10 @@ public class RabbitTestExchangeFanout {
     public void testConsumer1() {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
+            connectionFactory.setHost(URL);
+            connectionFactory.setUsername(username);
+            connectionFactory.setPassword(password);
+            connectionFactory.setPort(port);
             Connection connection = connectionFactory.newConnection();
             final Channel channel = connection.createChannel();
 
@@ -83,7 +94,10 @@ public class RabbitTestExchangeFanout {
     public void testConsumer2() {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
+            connectionFactory.setHost(URL);
+            connectionFactory.setUsername(username);
+            connectionFactory.setPassword(password);
+            connectionFactory.setPort(port);
             Connection connection = connectionFactory.newConnection();
             final Channel channel = connection.createChannel();
 

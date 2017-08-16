@@ -12,11 +12,19 @@ public class RabbitTestExchangeDirect {
     public static final String QUEUE_NAME9 = "order_queue_9";
     public static final String EXCHANGE_NAME = "logs_direct";
 
+    public static final String URL = "192.168.1.5";
+    public static final String username = "admin";
+    public static final String password = "admin";
+    public static final Integer port = 5672;
+
     @Test
     public void testProvider() {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
+            connectionFactory.setHost(URL);
+            connectionFactory.setUsername(username);
+            connectionFactory.setPassword(password);
+            connectionFactory.setPort(port);
             Connection connection = connectionFactory.newConnection();
             Channel channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
@@ -40,7 +48,10 @@ public class RabbitTestExchangeDirect {
     public void testConsumer1() {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
+            connectionFactory.setHost(URL);
+            connectionFactory.setUsername(username);
+            connectionFactory.setPassword(password);
+            connectionFactory.setPort(port);
             Connection connection = connectionFactory.newConnection();
             final Channel channel = connection.createChannel();
 
@@ -70,7 +81,10 @@ public class RabbitTestExchangeDirect {
     public void testConsumer2() {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
+            connectionFactory.setHost(URL);
+            connectionFactory.setUsername(username);
+            connectionFactory.setPassword(password);
+            connectionFactory.setPort(port);
             Connection connection = connectionFactory.newConnection();
             final Channel channel = connection.createChannel();
 
