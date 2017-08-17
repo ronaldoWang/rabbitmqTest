@@ -1,0 +1,208 @@
+import com.rabbitmq.client.*;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+/**
+ * Created by haoxi on 2017/8/15.
+ */
+public class RabbitTestExchangeClusterDirect {
+    public static final String QUEUE_NAME8 = "order_queue_8";
+    public static final String QUEUE_NAME9 = "order_queue_9";
+    public static final String EXCHANGE_NAME = "logs_direct";
+
+    public static final String URL1 = "130.252.86.13";
+    public static final String username1 = "admin";
+    public static final String password1 = "admin";
+    public static final Integer port1 = 5672;
+
+    public static final String URL2 = "localhost";
+    public static final String username2 = "admin";
+    public static final String password2 = "admin";
+    public static final Integer port2 = 5672;
+
+    @Test
+    public void testProvider1() {
+        try {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost(URL1);
+            connectionFactory.setUsername(username1);
+            connectionFactory.setPassword(password1);
+            connectionFactory.setPort(port1);
+            Connection connection = connectionFactory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
+            String message1 = URL1 + "hello world!";
+            String message2 = URL1 + "ronaldo!";
+            channel.basicPublish(EXCHANGE_NAME, "d1", null, message1.getBytes());
+            channel.basicPublish(EXCHANGE_NAME, "d2", null, message2.getBytes());
+            System.out.println(" [x] Sent '" + message1 + "'");
+            System.out.println(" [x] Sent '" + message2 + "'");
+            // 关闭频道和连接
+            channel.close();
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testProvider2() {
+        try {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost(URL2);
+            connectionFactory.setUsername(username2);
+            connectionFactory.setPassword(password2);
+            connectionFactory.setPort(port2);
+            Connection connection = connectionFactory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
+            String message1 = URL2 + "hello world!";
+            String message2 = URL2 + "ronaldo!";
+            channel.basicPublish(EXCHANGE_NAME, "d1", null, message1.getBytes());
+            channel.basicPublish(EXCHANGE_NAME, "d2", null, message2.getBytes());
+            System.out.println(" [x] Sent '" + message1 + "'");
+            System.out.println(" [x] Sent '" + message2 + "'");
+            // 关闭频道和连接
+            channel.close();
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testConsumer1() {
+        try {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost(URL1);
+            connectionFactory.setUsername(username1);
+            connectionFactory.setPassword(password1);
+            connectionFactory.setPort(port1);
+            Connection connection = connectionFactory.newConnection();
+            final Channel channel = connection.createChannel();
+
+            channel.queueDeclare(QUEUE_NAME8, false, false, false, null);
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
+            channel.queueBind(QUEUE_NAME8, EXCHANGE_NAME, "d1");
+            QueueingConsumer consumer = new QueueingConsumer(channel);
+            channel.basicConsume(QUEUE_NAME8, true, consumer);
+
+        /* 读取队列，并且阻塞，即在读到消息之前在这里阻塞，直到等到消息，完成消息的阅读后，继续阻塞循环 */
+            while (true) {
+                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                String message = new String(delivery.getBody());
+                System.out.println("testConsumer1收到消息'" + message + "'");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void testConsumer2() {
+        try {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost(URL1);
+            connectionFactory.setUsername(username1);
+            connectionFactory.setPassword(password1);
+            connectionFactory.setPort(port1);
+            Connection connection = connectionFactory.newConnection();
+            final Channel channel = connection.createChannel();
+
+            channel.queueDeclare(QUEUE_NAME9, false, false, false, null);
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
+            channel.queueBind(QUEUE_NAME9, EXCHANGE_NAME, "d2");
+            QueueingConsumer consumer = new QueueingConsumer(channel);
+            channel.basicConsume(QUEUE_NAME9, true, consumer);
+
+        /* 读取队列，并且阻塞，即在读到消息之前在这里阻塞，直到等到消息，完成消息的阅读后，继续阻塞循环 */
+            while (true) {
+                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                String message = new String(delivery.getBody());
+                System.out.println("testConsumer2收到消息'" + message + "'");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testConsumer3() {
+        try {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost(URL2);
+            connectionFactory.setUsername(username2);
+            connectionFactory.setPassword(password2);
+            connectionFactory.setPort(port2);
+            Connection connection = connectionFactory.newConnection();
+            final Channel channel = connection.createChannel();
+
+            channel.queueDeclare(QUEUE_NAME8, false, false, false, null);
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
+            channel.queueBind(QUEUE_NAME8, EXCHANGE_NAME, "d1");
+            QueueingConsumer consumer = new QueueingConsumer(channel);
+            channel.basicConsume(QUEUE_NAME8, true, consumer);
+
+        /* 读取队列，并且阻塞，即在读到消息之前在这里阻塞，直到等到消息，完成消息的阅读后，继续阻塞循环 */
+            while (true) {
+                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                String message = new String(delivery.getBody());
+                System.out.println("testConsumer1收到消息'" + message + "'");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void testConsumer4() {
+        try {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost(URL2);
+            connectionFactory.setUsername(username2);
+            connectionFactory.setPassword(password2);
+            connectionFactory.setPort(port2);
+            Connection connection = connectionFactory.newConnection();
+            final Channel channel = connection.createChannel();
+
+            channel.queueDeclare(QUEUE_NAME9, false, false, false, null);
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);
+            channel.queueBind(QUEUE_NAME9, EXCHANGE_NAME, "d2");
+            QueueingConsumer consumer = new QueueingConsumer(channel);
+            channel.basicConsume(QUEUE_NAME9, true, consumer);
+
+        /* 读取队列，并且阻塞，即在读到消息之前在这里阻塞，直到等到消息，完成消息的阅读后，继续阻塞循环 */
+            while (true) {
+                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                String message = new String(delivery.getBody());
+                System.out.println("testConsumer2收到消息'" + message + "'");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}

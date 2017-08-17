@@ -12,7 +12,7 @@ public class RabbitTestExchangeDirect {
     public static final String QUEUE_NAME9 = "order_queue_9";
     public static final String EXCHANGE_NAME = "logs_direct";
 
-    public static final String URL = "192.168.1.5";
+    public static final String URL = "130.252.86.13";
     public static final String username = "admin";
     public static final String password = "admin";
     public static final Integer port = 5672;
